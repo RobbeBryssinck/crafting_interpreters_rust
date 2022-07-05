@@ -1,5 +1,8 @@
+use std::collections::HashMap;
+
 use crate::error_reporter;
 
+#[derive(Copy, Clone)]
 pub enum TokenType {
     // Single-character tokens.
     LeftParen, RightParen, LeftBrace, RightBrace,
@@ -21,26 +24,17 @@ pub enum TokenType {
     EOF
 }
 
-pub struct Object {
-
+pub enum Literal {
+    Identifier(String),
+    Str(String),
+    Number(f64),
 }
 
 pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,
-    pub literal: Object,
+    pub literal: Option<Literal>,
     pub line: i32
-}
-
-impl Token {
-    fn new(token_type: TokenType, lexeme: String, line: i32) -> Self {
-        Self { 
-            token_type,
-            lexeme,
-            literal: Object{},
-            line,
-        }
-    }
 }
 
 struct Scanner {
@@ -49,17 +43,46 @@ struct Scanner {
     start: usize,
     current: usize,
     line: i32,
+    keywords: HashMap<&'static str, TokenType>
 }
 
 impl Scanner {
     fn new(source: &str) -> Self {
-        Self {
+        let mut s = Self {
             source: source.chars().collect(),
             tokens: vec![],
             start: 0,
             current: 0,
             line: 0,
-        }
+            keywords: HashMap::new()
+        };
+
+        s.fill_keywords();
+
+        s
+    }
+
+    fn fill_keywords(&mut self) {
+        self.keywords.insert("and", TokenType::And);
+        self.keywords.insert("class", TokenType::Class);
+        self.keywords.insert("else", TokenType::Else);
+        self.keywords.insert("false", TokenType::False);
+        self.keywords.insert("for", TokenType::For);
+        self.keywords.insert("fun", TokenType::Fun);
+        self.keywords.insert("if", TokenType::If);
+        self.keywords.insert("nil", TokenType::Nil);
+        self.keywords.insert("or", TokenType::Or);
+        self.keywords.insert("print", TokenType::Print);
+        self.keywords.insert("return", TokenType::Return);
+        self.keywords.insert("super", TokenType::Super);
+        self.keywords.insert("this", TokenType::This);
+        self.keywords.insert("true", TokenType::True);
+        self.keywords.insert("var", TokenType::Var);
+        self.keywords.insert("while", TokenType::While);
+    }
+
+    fn get_keyword(&self, identifier: &str) -> Option<&TokenType> {
+        self.keywords.get(identifier)
     }
 
     fn scan_tokens(&mut self) {
@@ -131,8 +154,10 @@ impl Scanner {
             _ => {
                 if character.is_digit(10) {
                     self.scan_number();
+                } else if character.is_alphabetic() {
+                    self.scan_identifier();
                 } else {
-                    error_reporter::error(self.line, "Unknown character")
+                    error_reporter::error(self.line, "Unknown character");
                 }
             }
         }
@@ -145,12 +170,13 @@ impl Scanner {
     }
 
     fn add_token(&mut self, token_type: TokenType) {
-        let text = String::from_iter(self.source[self.start..self.current].iter());
-        self.tokens.push(Token::new(token_type, text, self.line))
+        self.add_token_literal(token_type, None)
     }
 
-    fn add_string_token(&mut self, text: String) {
-        self.tokens.push(Token::new(TokenType::String, text, self.line))
+    fn add_token_literal(&mut self, token_type: TokenType, literal: Option<Literal>) {
+        let lexeme = String::from_iter(self.source[self.start..self.current].iter());
+
+        self.tokens.push(Token{token_type, lexeme, literal, line: self.line})
     }
 
     fn check_next(&mut self, expected: char) -> bool {
@@ -198,7 +224,7 @@ impl Scanner {
         self.advance();
 
         let text = String::from_iter(self.source[self.start+1..self.current-1].iter());
-        self.add_string_token(text);
+        self.add_token_literal(TokenType::String, Some(Literal::Str(text)));
     }
 
     fn scan_number(&mut self) {
@@ -216,7 +242,21 @@ impl Scanner {
             }
         }
 
-        self.add_token(TokenType::Number);
+        let num = String::from_iter(self.source[self.start..self.current].iter()).parse::<f64>().unwrap();
+        self.add_token_literal(TokenType::Number, Some(Literal::Number(num)));
+    }
+
+    fn scan_identifier(&mut self) {
+        while self.peek().is_alphanumeric() {
+            self.advance();
+        }
+
+        let lexeme = String::from_iter(self.source[self.start..self.current].iter());
+        
+        match self.keywords.get(lexeme.as_str()) {
+            Some(&token_type) => self.add_token(token_type),
+            _ => self.add_token(TokenType::Identifier)
+        }
     }
 }
 
