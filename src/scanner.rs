@@ -1,8 +1,8 @@
-use std::collections::HashMap;
-
 use crate::error_reporter;
+
 use std::collections::HashMap;
 
+#[derive(Clone, Copy)]
 pub enum TokenType {
     // Single-character tokens.
     LeftParen, RightParen, LeftBrace, RightBrace,
@@ -43,11 +43,12 @@ struct Scanner {
     start: usize,
     current: usize,
     line: i32,
+    keywords: HashMap<String, TokenType>,
 }
 
 impl Scanner {
     fn new(source: &str) -> Self {
-        let mut s = Self {
+        Self {
             source: source.chars().collect(),
             tokens: vec![],
             start: 0,
@@ -232,7 +233,21 @@ impl Scanner {
             }
         }
 
-        self.add_token(TokenType::Number);
+        let literal = String::from_iter(self.source[self.start..self.current].iter()).parse::<f64>();
+
+        self.add_token_literal(TokenType::Number, Some(Literal::Number(literal.unwrap())));
+    }
+
+    fn scan_identifier(&mut self) {
+        while self.peek().is_alphanumeric() {
+            self.advance();
+        }
+
+        let text = String::from_iter(self.source[self.start..self.current].iter());
+        match self.keywords.get(&text) {
+            Some(&token_type) => self.add_token(token_type),
+            None => self.add_token_literal(TokenType::Identifier, Some(Literal::Identifier(text))),
+        }
     }
 }
 
