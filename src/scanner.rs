@@ -1,7 +1,8 @@
+use std::collections::HashMap;
+
 use crate::error_reporter;
 use std::collections::HashMap;
 
-#[derive(Clone, Copy)]
 pub enum TokenType {
     // Single-character tokens.
     LeftParen, RightParen, LeftBrace, RightBrace,
@@ -23,27 +24,17 @@ pub enum TokenType {
     EOF
 }
 
-// TODO:
-pub struct Object {
-
+pub enum Literal {
+    Identifier(String),
+    Str(String),
+    Number(f64),
 }
 
 pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,
-    pub literal: Object,
+    pub literal: Option<Literal>,
     pub line: i32
-}
-
-impl Token {
-    fn new(token_type: TokenType, lexeme: String, line: i32) -> Self {
-        Self { 
-            token_type,
-            lexeme,
-            literal: Object{},
-            line,
-        }
-    }
 }
 
 struct Scanner {
@@ -52,12 +43,11 @@ struct Scanner {
     start: usize,
     current: usize,
     line: i32,
-    keywords: HashMap<String, TokenType>,
 }
 
 impl Scanner {
     fn new(source: &str) -> Self {
-        Self {
+        let mut s = Self {
             source: source.chars().collect(),
             tokens: vec![],
             start: 0,
@@ -157,7 +147,7 @@ impl Scanner {
                 } else if character.is_alphabetic() || character == '_' {
                     self.scan_identifier();
                 } else {
-                    error_reporter::error(self.line, "Unknown character")
+                    error_reporter::error(self.line, "Unknown character");
                 }
             }
         }
@@ -170,12 +160,13 @@ impl Scanner {
     }
 
     fn add_token(&mut self, token_type: TokenType) {
-        let text = String::from_iter(self.source[self.start..self.current].iter());
-        self.tokens.push(Token::new(token_type, text, self.line))
+        self.add_token_literal(token_type, None)
     }
 
-    fn add_string_token(&mut self, text: String) {
-        self.tokens.push(Token::new(TokenType::String, text, self.line))
+    fn add_token_literal(&mut self, token_type: TokenType, literal: Option<Literal>) {
+        let lexeme = String::from_iter(self.source[self.start..self.current].iter());
+
+        self.tokens.push(Token{token_type, lexeme, literal, line: self.line})
     }
 
     fn check_next(&mut self, expected: char) -> bool {
@@ -223,7 +214,7 @@ impl Scanner {
         self.advance();
 
         let text = String::from_iter(self.source[self.start+1..self.current-1].iter());
-        self.add_string_token(text);
+        self.add_token_literal(TokenType::String, Some(Literal::Str(text)));
     }
 
     fn scan_number(&mut self) {
@@ -242,18 +233,6 @@ impl Scanner {
         }
 
         self.add_token(TokenType::Number);
-    }
-
-    fn scan_identifier(&mut self) {
-        while self.peek().is_alphanumeric() {
-            self.advance();
-        }
-
-        let text = String::from_iter(self.source[self.start..self.current].iter());
-        match self.keywords.get(&text) {
-            Some(&tokentype) => self.add_token(tokentype),
-            None => self.add_token(TokenType::Identifier),
-        }
     }
 }
 
