@@ -9,6 +9,7 @@ fn run(contents: &str) {
     let tokens = scanner::scan_tokens(contents);
 
     for token in tokens.iter() {
+        println!("token: {}", token.lexeme);
     }
 }
 

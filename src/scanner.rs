@@ -1,5 +1,7 @@
 use crate::error_reporter;
+use std::collections::HashMap;
 
+#[derive(Clone, Copy)]
 pub enum TokenType {
     // Single-character tokens.
     LeftParen, RightParen, LeftBrace, RightBrace,
@@ -21,6 +23,7 @@ pub enum TokenType {
     EOF
 }
 
+// TODO:
 pub struct Object {
 
 }
@@ -49,6 +52,7 @@ struct Scanner {
     start: usize,
     current: usize,
     line: i32,
+    keywords: HashMap<String, TokenType>,
 }
 
 impl Scanner {
@@ -59,11 +63,30 @@ impl Scanner {
             start: 0,
             current: 0,
             line: 0,
+            keywords: HashMap::from([
+                (String::from("and"), TokenType::And),
+                (String::from("class"), TokenType::Class),
+                (String::from("else"), TokenType::Else),
+                (String::from("false"), TokenType::False),
+                (String::from("fun"), TokenType::Fun),
+                (String::from("for"), TokenType::For),
+                (String::from("if"), TokenType::If),
+                (String::from("nil"), TokenType::Nil),
+                (String::from("or"), TokenType::Or),
+                (String::from("print"), TokenType::Print),
+                (String::from("return"), TokenType::Return),
+                (String::from("super"), TokenType::Super),
+                (String::from("this"), TokenType::This),
+                (String::from("true"), TokenType::True),
+                (String::from("var"), TokenType::Var),
+                (String::from("while"), TokenType::While),
+            ])
         }
     }
 
     fn scan_tokens(&mut self) {
         while !self.is_at_end() {
+            self.start = self.current;
             self.scan_token();
         }
 
@@ -131,6 +154,8 @@ impl Scanner {
             _ => {
                 if character.is_digit(10) {
                     self.scan_number();
+                } else if character.is_alphabetic() || character == '_' {
+                    self.scan_identifier();
                 } else {
                     error_reporter::error(self.line, "Unknown character")
                 }
@@ -217,6 +242,18 @@ impl Scanner {
         }
 
         self.add_token(TokenType::Number);
+    }
+
+    fn scan_identifier(&mut self) {
+        while self.peek().is_alphanumeric() {
+            self.advance();
+        }
+
+        let text = String::from_iter(self.source[self.start..self.current].iter());
+        match self.keywords.get(&text) {
+            Some(&tokentype) => self.add_token(tokentype),
+            None => self.add_token(TokenType::Identifier),
+        }
     }
 }
 
