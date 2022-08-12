@@ -1,5 +1,7 @@
-mod scanner;
+pub mod scanner;
 mod error_reporter;
+mod expressions;
+mod parser;
 
 use std::{env, process::exit};
 use std::fs;
@@ -11,6 +13,11 @@ fn run(contents: &str) {
     for token in tokens.iter() {
         println!("token: {}", token.lexeme);
     }
+
+    let mut parser_runner = parser::Parser::new(tokens);
+    let expr = parser_runner.parse();
+
+    println!("Finished running");
 }
 
 fn run_file(filename: &str) {

@@ -2,7 +2,7 @@ use crate::error_reporter;
 
 use std::collections::HashMap;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum TokenType {
     // Single-character tokens.
     LeftParen, RightParen, LeftBrace, RightBrace,
@@ -24,12 +24,15 @@ pub enum TokenType {
     EOF
 }
 
+#[derive(Clone)]
 pub enum Literal {
     Identifier(String),
     Str(String),
     Number(f64),
+    Bool(bool),
 }
 
+#[derive(Clone)]
 pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,

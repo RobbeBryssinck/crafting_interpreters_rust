@@ -1,5 +1,6 @@
-use scanner::{Token, Literal};
+use crate::scanner::{Token, Literal};
 
+#[derive(Clone)]
 pub enum Expr {
 	Assign {
 		name: Token,
@@ -28,7 +29,7 @@ pub enum Expr {
     },
 
     Literal {
-        value: Literal,
+        value: Option<Literal>,
     },
 
     Logical {
