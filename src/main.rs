@@ -14,6 +14,8 @@ fn run(contents: &str) {
         println!("token: {}", token.lexeme);
     }
 
+    error_reporter::reset_error();
+
     let mut parser_runner = parser::Parser::new(tokens);
     let expr = parser_runner.parse();
 

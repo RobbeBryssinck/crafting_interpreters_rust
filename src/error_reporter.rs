@@ -1,6 +1,11 @@
 use crate::scanner::{Token, TokenType};
 
+// TODO: this whole module is bad
 static mut IS_ERROR: bool = false;
+
+pub fn reset_error() {
+	unsafe { IS_ERROR = false; }
+}
 
 pub fn is_error() -> bool {
 	unsafe { return IS_ERROR; }
