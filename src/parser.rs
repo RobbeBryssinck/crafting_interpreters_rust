@@ -15,8 +15,14 @@ impl Parser {
         }
     }
 
-    pub fn parse(&mut self) -> Expr {
-        return self.expression();
+    pub fn parse(&mut self) -> Option<Expr> {
+        let expr = self.expression();
+
+        if error_reporter::is_error() {
+            return None;
+        }
+
+        return Some(expr);
     }
 
     fn expression(&mut self) -> Expr {
