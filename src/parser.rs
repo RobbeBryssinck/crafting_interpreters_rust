@@ -112,7 +112,7 @@ impl Parser {
         } else if self.match_tokens(&[TokenType::True]) {
             return Expr::Literal { value: Some(Literal::Bool(true)) }
         } else if self.match_tokens(&[TokenType::Nil]) {
-            return Expr::Literal { value: None }
+            return Expr::Literal { value: Some(Literal::Nil) }
         } else if self.match_tokens(&[TokenType::Number, TokenType::String]) {
             return Expr::Literal { value: self.previous().clone().literal }
         } else if self.match_tokens(&[TokenType::LeftParen]) {

@@ -30,6 +30,7 @@ pub enum Literal {
     Str(String),
     Number(f64),
     Bool(bool),
+    Nil
 }
 
 #[derive(Clone)]
