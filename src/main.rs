@@ -2,6 +2,7 @@ pub mod scanner;
 mod error_reporter;
 mod expressions;
 mod parser;
+mod interpreter;
 
 use std::{env, process::exit};
 use std::fs;
@@ -17,7 +18,11 @@ fn run(contents: &str) {
     error_reporter::reset_error();
 
     let mut parser_runner = parser::Parser::new(tokens);
-    let expr = parser_runner.parse();
+    let expr = parser_runner.parse().unwrap();
+
+    error_reporter::reset_error();
+
+    interpreter::interpret(&expr);
 
     println!("Finished running");
 }

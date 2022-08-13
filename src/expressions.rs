@@ -29,7 +29,7 @@ pub enum Expr {
     },
 
     Literal {
-        value: Option<Literal>,
+        value: Literal,
     },
 
     Logical {

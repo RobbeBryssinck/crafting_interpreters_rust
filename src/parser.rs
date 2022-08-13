@@ -108,20 +108,21 @@ impl Parser {
 
     fn primary(&mut self) -> Expr {
         if self.match_tokens(&[TokenType::False]) {
-            return Expr::Literal { value: Some(Literal::Bool(false)) }
+            return Expr::Literal { value: Literal::Bool(false) }
         } else if self.match_tokens(&[TokenType::True]) {
-            return Expr::Literal { value: Some(Literal::Bool(true)) }
+            return Expr::Literal { value: Literal::Bool(true) }
         } else if self.match_tokens(&[TokenType::Nil]) {
-            return Expr::Literal { value: Some(Literal::Nil) }
+            return Expr::Literal { value: Literal::Nil }
         } else if self.match_tokens(&[TokenType::Number, TokenType::String]) {
-            return Expr::Literal { value: self.previous().clone().literal }
+            return Expr::Literal { value: self.previous().clone().literal.unwrap() }
         } else if self.match_tokens(&[TokenType::LeftParen]) {
             let expr = self.expression();
             self.consume(TokenType::RightParen, "Expect ')' after expression.");
             return Expr::Grouping { expression: Box::new(expr) }
         }
 
-        return Expr::Literal { value: None }
+        // TODO: this isn't great
+        return Expr::Literal { value: Literal::Nil }
     }
 
     fn match_tokens(&mut self, token_types: &[TokenType]) -> bool {
@@ -167,13 +168,13 @@ impl Parser {
             }
 
             match self.peek().token_type {
-                TokenType::Class => return,
-                TokenType::Fun => return,
-                TokenType::Var => return,
-                TokenType::For => return,
-                TokenType::If => return,
-                TokenType::While => return,
-                TokenType::Print => return,
+                TokenType::Class | 
+                TokenType::Fun |
+                TokenType::Var |
+                TokenType::For |
+                TokenType::If |
+                TokenType::While |
+                TokenType::Print |
                 TokenType::Return => return,
                 _ => {}
             }
