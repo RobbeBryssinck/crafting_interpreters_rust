@@ -2,12 +2,10 @@ use crate::scanner::{Literal, TokenType};
 use crate::expressions::Expr;
 
 pub fn interpret(expr: &Expr) {
-    let result = evaluate(expr);
+    let result = evaluate(expr).unwrap();
     match result {
-        Some(_value) => {
-            println!("Evaluated expression");
-        },
-        None => println!("Expression not evaluated")
+        Value::Number(value) => { println!("{}", value); },
+        _ => {}
     }
 }
 
@@ -62,7 +60,7 @@ fn evaluate(expr: &Expr) -> Option<Value> {
                     match (left_object, right_object) {
                         (Value::Number(left_value), Value::Number(right_value)) => 
                         {
-                            return Some(Value::Number(left_value - right_value));
+                            return Some(Value::Number(left_value + right_value));
                         },
                         (Value::Str(left_value), Value::Str(right_value)) => 
                         {
@@ -140,7 +138,7 @@ fn evaluate(expr: &Expr) -> Option<Value> {
                 _ => { return None; }
             }
         },
-        _ => {}
+        _ => { return None; }
     }
 
     return None;
