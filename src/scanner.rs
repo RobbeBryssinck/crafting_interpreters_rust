@@ -1,5 +1,3 @@
-use crate::error_reporter;
-
 use std::collections::HashMap;
 
 #[derive(Clone, Copy, PartialEq)]
@@ -47,6 +45,7 @@ struct Scanner {
     start: usize,
     current: usize,
     line: i32,
+    is_error: bool,
     keywords: HashMap<String, TokenType>,
 }
 
@@ -58,6 +57,7 @@ impl Scanner {
             start: 0,
             current: 0,
             line: 0,
+            is_error: false,
             keywords: HashMap::from([
                 (String::from("and"), TokenType::And),
                 (String::from("class"), TokenType::Class),
@@ -152,7 +152,7 @@ impl Scanner {
                 } else if character.is_alphabetic() || character == '_' {
                     self.scan_identifier();
                 } else {
-                    error_reporter::error(self.line, "Unknown character");
+                    self.report_error("unknown character.");
                 }
             }
         }
@@ -212,7 +212,7 @@ impl Scanner {
         }
 
         if self.is_at_end() {
-            error_reporter::error(self.line, "Unterminated string.");
+            self.report_error("unterminated string.");
             return;
         }
 
@@ -252,6 +252,12 @@ impl Scanner {
             Some(&token_type) => self.add_token(token_type),
             None => self.add_token_literal(TokenType::Identifier, Some(Literal::Identifier(text))),
         }
+    }
+
+    fn report_error(&mut self, message: &str) {
+        self.is_error = true;
+        let line = self.line;
+        println!("[line {line}] Error: {message}");
     }
 }
 

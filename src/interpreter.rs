@@ -1,6 +1,5 @@
 use crate::scanner::{Literal, TokenType};
 use crate::expressions::Expr;
-use crate::error_reporter;
 
 pub fn interpret(expr: &Expr) {
     let result = match evaluate(expr) {
@@ -16,8 +15,6 @@ pub fn interpret(expr: &Expr) {
             _ => {}
         }
     }
-    
-    error_reporter::reset_error();
 }
 
 fn evaluate(expr: &Expr) -> Result<Value, String> {

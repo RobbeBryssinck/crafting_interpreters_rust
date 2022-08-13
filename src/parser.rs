@@ -1,10 +1,10 @@
 use crate::scanner::{Token, TokenType, Literal};
 use crate::expressions::Expr;
-use crate::error_reporter;
 
 pub struct Parser {
     pub tokens: Vec<Token>,
     current: usize,
+    is_error: bool,
 }
 
 impl Parser {
@@ -12,17 +12,19 @@ impl Parser {
         Self {
             tokens,
             current: 0,
+            is_error: false,
         }
     }
 
-    pub fn parse(&mut self) -> Option<Expr> {
+    pub fn parse(&mut self) -> Result<Expr, ()> {
         let expr = self.expression();
 
-        if error_reporter::is_error() {
-            return None;
+        if self.is_error {
+            self.is_error = false;
+            return Err(());
         }
 
-        return Some(expr);
+        return Ok(expr);
     }
 
     fn expression(&mut self) -> Expr {
@@ -155,7 +157,7 @@ impl Parser {
             return Some(self.advance().clone());
         }
 
-        error_reporter::token_error(&self.previous(), message);
+        self.report_error(message);
         return None;
     }
 
@@ -193,5 +195,11 @@ impl Parser {
 
     fn previous(&self) -> &Token {
         &self.tokens[self.current-1]
+    }
+
+    fn report_error(&mut self, message: &str) {
+        self.is_error = true;
+        let line = self.previous().line;
+        println!("[line {line}] Error: {message}");
     }
 }

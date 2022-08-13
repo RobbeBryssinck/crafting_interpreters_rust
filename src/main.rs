@@ -1,5 +1,4 @@
 pub mod scanner;
-mod error_reporter;
 mod expressions;
 mod parser;
 mod interpreter;
@@ -15,12 +14,8 @@ fn run(contents: &str) {
         println!("token: {}", token.lexeme);
     }
 
-    error_reporter::reset_error();
-
     let mut parser_runner = parser::Parser::new(tokens);
     let expr = parser_runner.parse().unwrap();
-
-    error_reporter::reset_error();
 
     interpreter::interpret(&expr);
 
