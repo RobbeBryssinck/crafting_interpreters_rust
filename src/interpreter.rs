@@ -1,12 +1,23 @@
 use crate::scanner::{Literal, TokenType};
 use crate::expressions::Expr;
+use crate::error_reporter;
 
 pub fn interpret(expr: &Expr) {
-    let result = evaluate(expr).unwrap();
-    match result {
-        Value::Number(value) => { println!("{}", value); },
-        _ => {}
+    let result = match evaluate(expr) {
+        Some(value) => value,
+        None => Value::Nil
+    };
+
+    if result == Value::Nil {
+        println!("Failed to interpret expression.");
+    } else {
+        match result {
+            Value::Number(value) => { println!("{}", value); },
+            _ => {}
+        }
     }
+    
+    error_reporter::reset_error();
 }
 
 fn evaluate(expr: &Expr) -> Option<Value> {
@@ -33,7 +44,12 @@ fn evaluate(expr: &Expr) -> Option<Value> {
                     }
                 },
                 TokenType::Bang => {
-                   // TODO 
+                    match right_object {
+                        Value::Bool(value) => {
+                            return Some(Value::Bool(!value));
+                        },
+                        _ => { return None; }
+                    }
                 }
                 _ => { return None; }
             }
@@ -180,7 +196,7 @@ fn is_equal(left: &Value, right: &Value) -> Option<bool> {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 enum Value {
     Identifier(String),
     Str(String),
