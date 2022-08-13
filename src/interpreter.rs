@@ -4,16 +4,16 @@ use crate::expressions::Expr;
 pub fn interpret(expr: &Expr) {
     let result = match evaluate(expr) {
         Ok(value) => value,
-        Err(_e) => Value::Nil
+        Err(e) => { 
+            println!("Failed to interpret expression.");
+            println!("{}", e);
+            return;
+        }
     };
 
-    if result == Value::Nil {
-        println!("Failed to interpret expression.");
-    } else {
-        match result {
-            Value::Number(value) => { println!("{}", value); },
-            _ => {}
-        }
+    match result {
+        Value::Number(value) => { println!("{}", value); },
+        _ => { println!("Unhandled value."); }
     }
 }
 

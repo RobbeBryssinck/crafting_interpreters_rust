@@ -10,16 +10,18 @@ use std::io::stdin;
 fn run(contents: &str) {
     let tokens = scanner::scan_tokens(contents);
 
+    /*
     for token in tokens.iter() {
         println!("token: {}", token.lexeme);
     }
+    */
 
     let mut parser_runner = parser::Parser::new(tokens);
     let expr = parser_runner.parse().unwrap();
 
     interpreter::interpret(&expr);
 
-    println!("Finished running");
+    //println!("Finished running");
 }
 
 fn run_file(filename: &str) {
