@@ -23,8 +23,7 @@ fn evaluate(expr: &Expr) -> Option<Value> {
             operator, 
             right 
         } => {
-            // TODO: unwrap
-            let right_object = evaluate(right).unwrap();
+            let right_object = evaluate(right)?;
 
             match operator.token_type {
                 TokenType::Minus => {
@@ -46,10 +45,8 @@ fn evaluate(expr: &Expr) -> Option<Value> {
             operator, 
             right 
         } => {
-            // TODO: unwrap
-            let left_object = evaluate(left).unwrap();
-            // TODO: unwrap
-            let right_object = evaluate(right).unwrap();
+            let left_object = evaluate(left)?;
+            let right_object = evaluate(right)?;
 
             match operator.token_type {
                 TokenType::Minus => { 
