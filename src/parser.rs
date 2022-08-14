@@ -4,7 +4,6 @@ use crate::syntax::{Expr, Stmt};
 pub struct Parser {
     pub tokens: Vec<Token>,
     current: usize,
-    is_error: bool,
 }
 
 impl Parser {
@@ -12,27 +11,29 @@ impl Parser {
         Self {
             tokens,
             current: 0,
-            is_error: false,
         }
     }
 
     pub fn parse(&mut self) -> Result<Vec<Stmt>, ()> {
+        let mut is_error = false;
         let mut statements: Vec<Stmt> = Vec::new();
+
         while !self.is_at_end() {
             match self.declaration() {
                 Ok(stmt) => statements.push(stmt),
                 Err(e) => {
-                    self.is_error = true;
+                    is_error = true;
                     println!("{}", e);
                     self.synchronize();
                 }
             }
         }
 
-        if self.is_error {
-            return Err(());
+        if is_error {
+            Err(())
+        } else {
+            Ok(statements)
         }
-        return Ok(statements);
     }
 
     fn declaration(&mut self) -> Result<Stmt, String> {
@@ -187,6 +188,8 @@ impl Parser {
             Ok(Expr::Literal { value: Literal::Nil })
         } else if self.match_tokens(&[TokenType::Number, TokenType::String]) {
             Ok(Expr::Literal { value: self.previous().clone().literal.unwrap() })
+        } else if self.match_tokens(&[TokenType::Identifier]) {
+            Ok(Expr::Variable { name: self.previous().clone() })
         } else if self.match_tokens(&[TokenType::LeftParen]) {
             let expr = self.expression()?;
 

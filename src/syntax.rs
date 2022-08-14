@@ -62,12 +62,6 @@ pub enum Expr {
     },
 }
 
-pub struct StmtFunction {
-    pub name: Token,
-    pub params: Vec<Token>,
-    pub body: Vec<Stmt>,
-}
-
 pub enum Stmt {
     Block {
         statements: Vec<Stmt>,
@@ -76,7 +70,13 @@ pub enum Stmt {
     Class {
         name: Token,
         superclass: Option<Expr>,
-        methods: Vec<StmtFunction>,
+        methods: Vec<Stmt>, // TODO: enforce Stmt::Function somehow
+    },
+
+    Function {
+        name: Token,
+        params: Vec<Token>,
+        body: Vec<Stmt>,
     },
 
     Expression {
