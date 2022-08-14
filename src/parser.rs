@@ -57,7 +57,12 @@ impl Parser {
             };
         }
 
-        Err(String::from("TODO"))
+        match self.consume(TokenType::Semicolon) {
+            Some(_token) => {},
+            None => { return Err(self.generate_error("Expect ';' after variable decleration.")); }
+        }
+
+        Ok(Stmt::Variable { name, initializer })
     }
 
     fn statement(&mut self) -> Result<Stmt, String> {

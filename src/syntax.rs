@@ -100,7 +100,7 @@ pub enum Stmt {
 
     Variable {
         name: Token,
-        initializer: Expr,
+        initializer: Option<Expr>,
     },
 
     While {
