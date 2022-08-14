@@ -1,19 +1,40 @@
 use crate::scanner::{Literal, TokenType};
-use crate::syntax::Expr;
+use crate::syntax::{Expr, Stmt};
 
-pub fn interpret(expr: &Expr) {
-    let result = match evaluate(expr) {
-        Ok(value) => value,
-        Err(e) => { 
-            println!("Failed to interpret expression.");
-            println!("{}", e);
-            return;
+pub fn interpret(statements: &Vec<Stmt>) {
+    for statement in statements {
+        match execute(&statement) {
+            Ok(()) => {},
+            Err(e) => {
+                println!("Failed to interpret statement.");
+                println!("{}", e);
+                break;
+            }
         }
-    };
+    }
+}
 
-    match result {
-        Value::Number(value) => { println!("{}", value); },
-        _ => { println!("Unhandled value."); }
+fn execute(stmt: &Stmt) -> Result<(), String> {
+    match stmt {
+        Stmt::Expression { expression } => {
+            match evaluate(expression) {
+                Ok(_) => { return Ok(()); },
+                Err(e) => { return Err(e); }
+            }
+        },
+        Stmt::Print { expression } => {
+            let value = evaluate(expression);
+            match value {
+                Ok(value) => {
+                    println!("{}", stringify(&value));
+                    return Ok(());
+                },
+                Err(e) => {
+                    return Err(e);
+                }
+            }
+        },
+        _ => { return Err(String::from("Unknown statement.")); }
     }
 }
 
@@ -156,7 +177,7 @@ fn evaluate(expr: &Expr) -> Result<Value, String> {
                 _ => { return Err(generate_error(operator.line, "unknown token found while parsing binary expression.")); }
             }
         },
-        _ => { return Err(String::from("Unknown expression type found.")); }
+        _ => { return Err(String::from("Unknown expression.")); }
     }
 }
 
@@ -193,6 +214,16 @@ fn is_equal(left: &Value, right: &Value) -> Option<bool> {
             return Some(true);
         },
         (_, _) => { return None; }
+    }
+}
+
+fn stringify(value: &Value) -> String {
+    match value {
+        Value::Identifier(val) => { val.clone() },
+        Value::Str(val) => { val.clone() },
+        Value::Number(val) => { val.to_string() },
+        Value::Bool(val) => { val.to_string() },
+        Value::Nil => { String::from("nil") },
     }
 }
 

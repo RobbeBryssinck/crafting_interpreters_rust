@@ -17,9 +17,9 @@ fn run(contents: &str) {
     */
 
     let mut parser_runner = parser::Parser::new(tokens);
-    let expr = parser_runner.parse().unwrap();
+    let statements = parser_runner.parse().unwrap();
 
-    interpreter::interpret(&expr);
+    interpreter::interpret(&statements);
 
     //println!("Finished running");
 }
