@@ -1,5 +1,5 @@
 use crate::scanner::{Token, TokenType, Literal};
-use crate::expressions::Expr;
+use crate::syntax::Expr;
 
 pub struct Parser {
     pub tokens: Vec<Token>,

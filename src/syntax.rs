@@ -1,6 +1,5 @@
 use crate::scanner::{Token, Literal};
 
-#[derive(Clone)]
 pub enum Expr {
 	Assign {
 		name: Token,
@@ -60,5 +59,52 @@ pub enum Expr {
 
     Variable {
         name: Token,
+    },
+}
+
+pub struct StmtFunction {
+    pub name: Token,
+    pub params: Vec<Token>,
+    pub body: Vec<Stmt>,
+}
+
+pub enum Stmt {
+    Block {
+        statements: Vec<Stmt>,
+    },
+
+    Class {
+        name: Token,
+        superclass: Option<Expr>,
+        methods: Vec<StmtFunction>,
+    },
+
+    Expression {
+        expression: Expr,
+    },
+
+    If {
+        condition: Expr,
+        then_branch: Box<Stmt>,
+        else_branch: Box<Stmt>,
+    },
+
+    Print {
+        expression: Expr,
+    },
+
+    Return {
+        keyword: Token,
+        value: Option<Expr>,
+    },
+
+    Variable {
+        name: Token,
+        initializer: Expr,
+    },
+
+    While {
+        condition: Expr,
+        body: Box<Stmt>,
     },
 }

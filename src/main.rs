@@ -1,5 +1,5 @@
 pub mod scanner;
-mod expressions;
+mod syntax;
 mod parser;
 mod interpreter;
 

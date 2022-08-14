@@ -1,5 +1,5 @@
 use crate::scanner::{Literal, TokenType};
-use crate::expressions::Expr;
+use crate::syntax::Expr;
 
 pub fn interpret(expr: &Expr) {
     let result = match evaluate(expr) {
