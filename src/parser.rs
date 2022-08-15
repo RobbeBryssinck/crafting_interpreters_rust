@@ -323,3 +323,62 @@ impl Parser {
         format!("[line {line}] Error: {message}")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse() {
+        let tokens: Vec<Token> = vec![
+            Token {
+                token_type: TokenType::Var,
+                lexeme: String::from("var"),
+                literal: None,
+                line: 0,
+            },
+            Token {
+                token_type: TokenType::Identifier,
+                lexeme: String::from("a"),
+                literal: Some(Literal::Identifier("a".to_string())),
+                line: 0,
+            },
+            Token {
+                token_type: TokenType::Equal,
+                lexeme: String::from("="),
+                literal: None,
+                line: 0,
+            },
+            Token {
+                token_type: TokenType::Number,
+                lexeme: String::from("5"),
+                literal: Some(Literal::Number(5.0)),
+                line: 0,
+            },
+            Token {
+                token_type: TokenType::Semicolon,
+                lexeme: String::from(";"),
+                literal: None,
+                line: 0,
+            },
+            Token {
+                token_type: TokenType::EOF,
+                lexeme: String::from(";"),
+                literal: None,
+                line: 0,
+            },
+        ];
+
+        let cmp_statements: Vec<Stmt> = vec![
+            Stmt::Variable {
+                name: tokens[1].clone(),
+                initializer: Some(Expr::Literal { value: Literal::Number(5.0) }),
+            },
+        ];
+
+        let statements = parse_tokens(tokens).unwrap();
+
+        assert_eq!(statements.len(), 1);
+        assert_eq!(statements, cmp_statements);
+    }
+}

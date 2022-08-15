@@ -1,5 +1,6 @@
 use crate::scanner::{Token, Literal};
 
+#[derive(Debug, PartialEq)]
 pub enum Expr {
 	Assign {
 		name: Token,
@@ -66,6 +67,7 @@ pub enum Expr {
     },
 }
 
+#[derive(Debug, PartialEq)]
 pub enum Stmt {
     Block {
         statements: Vec<Stmt>,

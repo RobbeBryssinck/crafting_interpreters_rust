@@ -30,7 +30,7 @@ pub enum TokenType {
     EOF
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Literal {
     Identifier(String),
     Str(String),
@@ -39,7 +39,7 @@ pub enum Literal {
     Nil
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,
@@ -282,15 +282,49 @@ mod tests {
     #[test]
     fn assignment() {
         let source = "var a = 5;";
+        let cmp_tokens: Vec<Token> = vec![
+            Token {
+                token_type: TokenType::Var,
+                lexeme: String::from("var"),
+                literal: None,
+                line: 0,
+            },
+            Token {
+                token_type: TokenType::Identifier,
+                lexeme: String::from("a"),
+                literal: Some(Literal::Identifier("a".to_string())),
+                line: 0,
+            },
+            Token {
+                token_type: TokenType::Equal,
+                lexeme: String::from("="),
+                literal: None,
+                line: 0,
+            },
+            Token {
+                token_type: TokenType::Number,
+                lexeme: String::from("5"),
+                literal: Some(Literal::Number(5.0)),
+                line: 0,
+            },
+            Token {
+                token_type: TokenType::Semicolon,
+                lexeme: String::from(";"),
+                literal: None,
+                line: 0,
+            },
+            Token {
+                token_type: TokenType::EOF,
+                lexeme: String::from(";"),
+                literal: None,
+                line: 0,
+            },
+        ];
+
         let tokens = scan_tokens(source).unwrap();
 
         assert_eq!(tokens.len(), 6);
-        assert_eq!(tokens[0].token_type, TokenType::Var);
-        assert_eq!(tokens[1].token_type, TokenType::Identifier);
-        assert_eq!(tokens[2].token_type, TokenType::Equal);
-        assert_eq!(tokens[3].token_type, TokenType::Number);
-        assert_eq!(tokens[4].token_type, TokenType::Semicolon);
-        assert_eq!(tokens[5].token_type, TokenType::EOF);
+        assert_eq!(tokens, cmp_tokens);
     }
 
     #[test]
@@ -309,6 +343,7 @@ mod tests {
     #[test]
     fn string_addition() {
         let source = "\"hello \" + \"world\";";
+
         let tokens = scan_tokens(source).unwrap();
 
         assert_eq!(tokens.len(), 5);
@@ -322,6 +357,7 @@ mod tests {
     #[test]
     fn subtraction() {
         let source = "5 - 2;";
+
         let tokens = scan_tokens(source).unwrap();
 
         assert_eq!(tokens.len(), 5);
@@ -335,6 +371,7 @@ mod tests {
     #[test]
     fn floating_points() {
         let source = "5.4 - 2.03;";
+
         let tokens = scan_tokens(source).unwrap();
 
         assert_eq!(tokens.len(), 5);
