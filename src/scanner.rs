@@ -1,5 +1,13 @@
 use std::collections::HashMap;
 
+pub fn scan_tokens(source: &str) -> Result<Vec<Token>, ()> {
+    let mut scanner = Scanner::new(source);
+    match scanner.scan_tokens() {
+        Ok(_) => Ok(scanner.tokens),
+        Err(_) => Err(())
+    }
+}
+
 #[derive(Clone, Copy, PartialEq)]
 pub enum TokenType {
     // Single-character tokens.
@@ -79,13 +87,19 @@ impl Scanner {
         }
     }
 
-    fn scan_tokens(&mut self) {
+    fn scan_tokens(&mut self) -> Result<(), ()> {
         while !self.is_at_end() {
             self.start = self.current;
             self.scan_token();
         }
 
         self.add_token(TokenType::EOF);
+
+        if !self.is_error {
+            Ok(())
+        } else {
+            Err(())
+        }
     }
 
     fn is_at_end(&self) -> bool {
@@ -259,12 +273,4 @@ impl Scanner {
         let line = self.line;
         println!("[line {line}] Error: {message}");
     }
-}
-
-pub fn scan_tokens(source: &str) -> Vec<Token> {
-    let mut scanner = Scanner::new(source);
-
-    scanner.scan_tokens();
-
-    scanner.tokens
 }

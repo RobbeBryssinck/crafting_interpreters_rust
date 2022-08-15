@@ -1,6 +1,11 @@
 use crate::scanner::{Token, TokenType, Literal};
 use crate::syntax::{Expr, Stmt};
 
+pub fn parse_tokens(tokens: Vec<Token>) -> Result<Vec<Stmt>, ()> {
+    let mut parser_runner = Parser::new(tokens);
+    parser_runner.parse()
+}
+
 pub struct Parser {
     pub tokens: Vec<Token>,
     current: usize,

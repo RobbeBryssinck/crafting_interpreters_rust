@@ -11,10 +11,12 @@ use std::fs;
 use std::io::stdin;
 
 fn run(interpreter: &mut Interpreter, contents: &str) {
-    let tokens = scanner::scan_tokens(contents);
+    let tokens = match scanner::scan_tokens(contents) {
+        Ok(tokens) => tokens,
+        Err(_) => { return; }
+    };
 
-    let mut parser_runner = parser::Parser::new(tokens);
-    let statements = match parser_runner.parse() {
+    let statements = match parser::parse_tokens(tokens) {
         Ok(statements) => statements,
         Err(_) => { return; }
     };
