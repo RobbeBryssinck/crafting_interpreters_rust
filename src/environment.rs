@@ -27,15 +27,13 @@ impl Environment {
     }
 
     pub fn get(&self, name: &Token) -> Option<Value> {
-        if self.values.borrow_mut().contains_key(&name.lexeme) {
-            match self.values.borrow().get(&name.lexeme) {
-                Some(value) => Some(value.clone()),
-                None => None
-            }
-        } else {
-            match &self.enclosing {
-                Some(enclosing) => enclosing.get(name),
-                None => None
+        match self.values.borrow().get(&name.lexeme) {
+            Some(value) => Some(value.clone()),
+            None => {
+                match &self.enclosing {
+                    Some(enclosing) => enclosing.get(name),
+                    None => None
+                }
             }
         }
     }
