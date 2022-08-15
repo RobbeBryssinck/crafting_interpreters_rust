@@ -92,7 +92,7 @@ impl Interpreter {
 
                 Ok(())
             },
-            _ => { return Err(String::from("Unknown statement.")); }
+            //_ => { return Err(String::from("Unknown statement.")); }
         }
     }
 
@@ -245,7 +245,7 @@ impl Interpreter {
                     _ => { return Err(self.generate_error(operator.line, "unknown token found while parsing binary expression.")); }
                 }
             },
-            _ => { return Err(String::from("Unknown expression.")); }
+            //_ => { return Err(String::from("Unknown expression.")); }
         }
     }
 

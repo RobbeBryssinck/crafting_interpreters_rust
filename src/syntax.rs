@@ -12,6 +12,7 @@ pub enum Expr {
 		right: Box<Expr>,
 	},
 
+    /*
 	Call {
 		callee: Box<Expr>,
 		paren: Token,
@@ -22,6 +23,7 @@ pub enum Expr {
         object: Box<Expr>,
         name: Token,
     },
+     */
 
     Grouping {
         expression: Box<Expr>,
@@ -31,6 +33,7 @@ pub enum Expr {
         value: Literal,
     },
 
+    /*
     Logical {
         left: Box<Expr>,
         operator: Token,
@@ -51,6 +54,7 @@ pub enum Expr {
     This {
         keyword: Token,
     },
+     */
 
     Unary {
         operator: Token,
@@ -67,6 +71,7 @@ pub enum Stmt {
         statements: Vec<Stmt>,
     },
 
+    /*
     Class {
         name: Token,
         superclass: Option<Expr>,
@@ -78,33 +83,40 @@ pub enum Stmt {
         params: Vec<Token>,
         body: Vec<Stmt>,
     },
+     */
 
     Expression {
         expression: Expr,
     },
 
+    /*
     If {
         condition: Expr,
         then_branch: Box<Stmt>,
         else_branch: Box<Stmt>,
     },
+     */
 
     Print {
         expression: Expr,
     },
 
+    /*
     Return {
         keyword: Token,
         value: Option<Expr>,
     },
+     */
 
     Variable {
         name: Token,
         initializer: Option<Expr>,
     },
 
+    /*
     While {
         condition: Expr,
         body: Box<Stmt>,
     },
+     */
 }

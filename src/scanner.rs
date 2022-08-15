@@ -8,7 +8,7 @@ pub fn scan_tokens(source: &str) -> Result<Vec<Token>, ()> {
     }
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenType {
     // Single-character tokens.
     LeftParen, RightParen, LeftBrace, RightBrace,
@@ -272,5 +272,76 @@ impl Scanner {
         self.is_error = true;
         let line = self.line;
         println!("[line {line}] Error: {message}");
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn assignment() {
+        let source = "var a = 5;";
+        let tokens = scan_tokens(source).unwrap();
+
+        assert_eq!(tokens.len(), 6);
+        assert_eq!(tokens[0].token_type, TokenType::Var);
+        assert_eq!(tokens[1].token_type, TokenType::Identifier);
+        assert_eq!(tokens[2].token_type, TokenType::Equal);
+        assert_eq!(tokens[3].token_type, TokenType::Number);
+        assert_eq!(tokens[4].token_type, TokenType::Semicolon);
+        assert_eq!(tokens[5].token_type, TokenType::EOF);
+    }
+
+    #[test]
+    fn number_addition() {
+        let source = "5 + 2;";
+        let tokens = scan_tokens(source).unwrap();
+
+        assert_eq!(tokens.len(), 5);
+        assert_eq!(tokens[0].token_type, TokenType::Number);
+        assert_eq!(tokens[1].token_type, TokenType::Plus);
+        assert_eq!(tokens[2].token_type, TokenType::Number);
+        assert_eq!(tokens[3].token_type, TokenType::Semicolon);
+        assert_eq!(tokens[4].token_type, TokenType::EOF);
+    }
+
+    #[test]
+    fn string_addition() {
+        let source = "\"hello \" + \"world\";";
+        let tokens = scan_tokens(source).unwrap();
+
+        assert_eq!(tokens.len(), 5);
+        assert_eq!(tokens[0].token_type, TokenType::String);
+        assert_eq!(tokens[1].token_type, TokenType::Plus);
+        assert_eq!(tokens[2].token_type, TokenType::String);
+        assert_eq!(tokens[3].token_type, TokenType::Semicolon);
+        assert_eq!(tokens[4].token_type, TokenType::EOF);
+    }
+
+    #[test]
+    fn subtraction() {
+        let source = "5 - 2;";
+        let tokens = scan_tokens(source).unwrap();
+
+        assert_eq!(tokens.len(), 5);
+        assert_eq!(tokens[0].token_type, TokenType::Number);
+        assert_eq!(tokens[1].token_type, TokenType::Minus);
+        assert_eq!(tokens[2].token_type, TokenType::Number);
+        assert_eq!(tokens[3].token_type, TokenType::Semicolon);
+        assert_eq!(tokens[4].token_type, TokenType::EOF);
+    }
+
+    #[test]
+    fn floating_points() {
+        let source = "5.4 - 2.03;";
+        let tokens = scan_tokens(source).unwrap();
+
+        assert_eq!(tokens.len(), 5);
+        assert_eq!(tokens[0].token_type, TokenType::Number);
+        assert_eq!(tokens[1].token_type, TokenType::Minus);
+        assert_eq!(tokens[2].token_type, TokenType::Number);
+        assert_eq!(tokens[3].token_type, TokenType::Semicolon);
+        assert_eq!(tokens[4].token_type, TokenType::EOF);
     }
 }
