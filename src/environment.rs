@@ -43,7 +43,7 @@ impl Environment {
 
     pub fn assign(&self, name: &Token, value: Value) -> Result<Value, String> {
         if self.values.borrow().contains_key(&name.lexeme) {
-            self.values.borrow_mut().entry(name.lexeme.clone()).or_insert(value.clone());
+            self.values.borrow_mut().insert(name.lexeme.to_string(), value.clone());
             Ok(value)
         } else {
             match &self.enclosing {
