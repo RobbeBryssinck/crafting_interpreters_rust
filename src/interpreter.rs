@@ -92,7 +92,18 @@ impl Interpreter {
 
                 Ok(())
             },
-            //_ => { return Err(String::from("Unknown statement.")); }
+            Stmt::If { condition, then_branch, else_branch } => {
+                if is_truthy(&self.evaluate(condition)?) {
+                    self.execute(then_branch)
+                } else if else_branch.is_some() {
+                    match else_branch {
+                        Some(statement) => self.execute(statement),
+                        None => Err("This can literally never hit.".to_string())
+                    }
+                } else {
+                    Ok(())
+                }
+            },
         }
     }
 
@@ -245,7 +256,6 @@ impl Interpreter {
                     _ => { return Err(self.generate_error(operator.line, "unknown token found while parsing binary expression.")); }
                 }
             },
-            //_ => { return Err(String::from("Unknown expression.")); }
         }
     }
 
@@ -297,6 +307,14 @@ impl Interpreter {
 
     fn generate_error(&mut self, line: i32, message: &str) -> String {
         format!("[line {line}] Error: {message}")
+    }
+}
+
+fn is_truthy(value: &Value) -> bool {
+    match value {
+        Value::Bool(value) => *value,
+        Value::Nil => false,
+        _ => true,
     }
 }
 

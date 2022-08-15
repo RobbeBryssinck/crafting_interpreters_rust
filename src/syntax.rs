@@ -91,13 +91,11 @@ pub enum Stmt {
         expression: Expr,
     },
 
-    /*
     If {
         condition: Expr,
         then_branch: Box<Stmt>,
-        else_branch: Box<Stmt>,
+        else_branch: Option<Box<Stmt>>,
     },
-     */
 
     Print {
         expression: Expr,

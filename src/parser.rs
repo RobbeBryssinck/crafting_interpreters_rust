@@ -74,6 +74,8 @@ impl Parser {
     fn statement(&mut self) -> Result<Stmt, String> {
         if self.match_tokens(&[TokenType::Print]) {
             self.print_statement()
+        } else if self.match_tokens(&[TokenType::If]) {
+            self.if_statement()
         } else if self.match_tokens(&[TokenType::LeftBrace]) {
             let statements = match self.block() {
                 Ok(statements) => statements,
@@ -96,6 +98,31 @@ impl Parser {
             Some(_token) => Ok(Stmt::Print { expression: value }),
             None => Err(self.generate_error("Expect ';' after value."))
         }
+    }
+
+    fn if_statement(&mut self) -> Result<Stmt, String> {
+        match self.consume(TokenType::LeftParen) {
+            Some(_token) => {},
+            None => {return Err(self.generate_error("Expect '(' after 'if'.")); }
+        }
+
+        let condition = self.expression()?;
+
+        match self.consume(TokenType::RightParen) {
+            Some(_token) => {},
+            None => {return Err(self.generate_error("Expect ')' after if condition.")); }
+        }
+
+        let then_branch = self.statement()?;
+        let mut else_branch: Option<Box<Stmt>> = None;
+        if self.match_tokens(&[TokenType::Else]) {
+            else_branch = match self.statement() {
+                Ok(statement) => Some(Box::new(statement)),
+                Err(e) => { return Err(e); }
+            }
+        }
+
+        Ok(Stmt::If { condition, then_branch: Box::new(then_branch), else_branch })
     }
 
     fn block(&mut self) -> Result<Vec<Stmt>, String> {
