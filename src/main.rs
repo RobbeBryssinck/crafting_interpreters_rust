@@ -14,7 +14,10 @@ fn run(interpreter: &mut Interpreter, contents: &str) {
     let tokens = scanner::scan_tokens(contents);
 
     let mut parser_runner = parser::Parser::new(tokens);
-    let statements = parser_runner.parse().unwrap();
+    let statements = match parser_runner.parse() {
+        Ok(statements) => statements,
+        Err(_) => { return; }
+    };
 
     interpreter.interpret(&statements);
 }
@@ -22,7 +25,7 @@ fn run(interpreter: &mut Interpreter, contents: &str) {
 fn run_file(filename: &str) {
     println!("Running file {filename}");
 
-    let mut interpreter = Interpreter::new();
+    let mut interpreter = Interpreter::new(false);
 
     let contents = fs::read_to_string(filename).expect("Someting went wrong reading the file");
     run(&mut interpreter, &contents);
@@ -31,7 +34,7 @@ fn run_file(filename: &str) {
 fn run_prompt() {
     println!("Running prompt");
 
-    let mut interpreter = Interpreter::new();
+    let mut interpreter = Interpreter::new(true);
 
     loop {
         let mut buffer = String::new();

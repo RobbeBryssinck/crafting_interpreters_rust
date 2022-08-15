@@ -6,11 +6,15 @@ use std::rc::Rc;
 
 pub struct Interpreter {
     environment: Rc<Environment>,
+    is_repl: bool,
 }
 
 impl Interpreter {
-    pub fn new() -> Self {
-        Self { environment: Rc::new(Environment::new()) }
+    pub fn new(is_repl: bool) -> Self {
+        Self { 
+            environment: Rc::new(Environment::new()),
+            is_repl: is_repl,
+        }
     }
 
     pub fn interpret(&mut self, statements: &Vec<Stmt>) {
@@ -30,7 +34,12 @@ impl Interpreter {
         match stmt {
             Stmt::Expression { expression } => {
                 match self.evaluate(expression) {
-                    Ok(_) => { return Ok(()); },
+                    Ok(value) => { 
+                        if self.is_repl {
+                            println!("{}", self.stringify(&value));
+                        }
+                        Ok(())
+                    },
                     Err(e) => { return Err(e); }
                 }
             },
@@ -39,7 +48,7 @@ impl Interpreter {
                 match value {
                     Ok(value) => {
                         println!("{}", self.stringify(&value));
-                        return Ok(());
+                        Ok(())
                     },
                     Err(e) => {
                         return Err(e);
