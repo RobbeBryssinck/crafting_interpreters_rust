@@ -2,13 +2,15 @@ use crate::scanner::{Literal, TokenType};
 use crate::syntax::{Expr, Stmt};
 use crate::environment::Environment;
 
+use std::rc::Rc;
+
 pub struct Interpreter {
-    environment: Environment,
+    environment: Rc<Environment>,
 }
 
 impl Interpreter {
     pub fn new() -> Self {
-        Self { environment: Environment::new() }
+        Self { environment: Rc::new(Environment::new()) }
     }
 
     pub fn interpret(&mut self, statements: &Vec<Stmt>) {
@@ -55,6 +57,29 @@ impl Interpreter {
                     },
                     None => {}
                 }
+
+                Ok(())
+            },
+            Stmt::Block { statements } => {
+                self.environment = Rc::new(Environment::from(Rc::clone(&self.environment)));
+                for statement in statements {
+                    match self.execute(statement) {
+                        Ok(_) => {},
+                        Err(e) => { 
+                            self.environment = match &self.environment.enclosing {
+                                Some(enclosing) => Rc::clone(&enclosing),
+                                None => { return Err(format!("{}\n{}", "Enclosing environment not found.", e)); }
+                            };
+
+                            return Err(e);
+                        }
+                    }
+                }
+
+                self.environment = match &self.environment.enclosing {
+                    Some(enclosing) => Rc::clone(&enclosing),
+                    None => { return Err(String::from("Enclosing environment not found.")); }
+                };
 
                 Ok(())
             },

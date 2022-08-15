@@ -68,10 +68,17 @@ impl Parser {
 
     fn statement(&mut self) -> Result<Stmt, String> {
         if self.match_tokens(&[TokenType::Print]) {
-            return self.print_statement();
-        }
+            self.print_statement()
+        } else if self.match_tokens(&[TokenType::LeftBrace]) {
+            let statements = match self.block() {
+                Ok(statements) => statements,
+                Err(e) => { return Err(e); }
+            };
 
-        self.expression_statement()
+            Ok(Stmt::Block { statements })
+        } else {
+            self.expression_statement()
+        }
     }
 
     fn print_statement(&mut self) -> Result<Stmt, String> {
@@ -83,6 +90,24 @@ impl Parser {
         match self.consume(TokenType::Semicolon) {
             Some(_token) => Ok(Stmt::Print { expression: value }),
             None => Err(self.generate_error("Expect ';' after value."))
+        }
+    }
+
+    fn block(&mut self) -> Result<Vec<Stmt>, String> {
+        let mut statements: Vec<Stmt> = Vec::new();
+
+        while !self.check(TokenType::RightBrace) && !self.is_at_end() {
+            let declaration = match self.declaration() {
+                Ok(declaration) => declaration,
+                Err(e) => { return Err(e); }
+            };
+
+            statements.push(declaration);
+        }
+
+        match self.consume(TokenType::RightBrace) {
+            Some(_token) => Ok(statements),
+            None => Err(self.generate_error("Expect '}' after block."))
         }
     }
 
