@@ -125,6 +125,25 @@ impl Interpreter {
                 let new_value = self.evaluate(value)?;
                 self.environment.assign(name, new_value)
             },
+            Expr::Logical { 
+                left, 
+                operator, 
+                right 
+            } => {
+                let left_object = self.evaluate(left)?;
+
+                if operator.token_type == TokenType::Or {
+                    if is_truthy(&left_object) {
+                        return Ok(left_object);
+                    }
+                } else {
+                    if !is_truthy(&left_object) {
+                        return Ok(left_object);
+                    }
+                }
+
+                self.evaluate(right)
+            },
             Expr::Unary { 
                 operator, 
                 right 
