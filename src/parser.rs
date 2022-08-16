@@ -74,6 +74,10 @@ impl Parser {
     fn statement(&mut self) -> Result<Stmt, String> {
         if self.match_tokens(&[TokenType::Print]) {
             self.print_statement()
+        } else if self.match_tokens(&[TokenType::While]) {
+            self.while_statement()
+        } else if self.match_tokens(&[TokenType::For]) {
+            self.for_statement()
         } else if self.match_tokens(&[TokenType::If]) {
             self.if_statement()
         } else if self.match_tokens(&[TokenType::LeftBrace]) {
@@ -98,6 +102,77 @@ impl Parser {
             Some(_token) => Ok(Stmt::Print { expression: value }),
             None => Err(self.generate_error("Expect ';' after value."))
         }
+    }
+
+    fn while_statement(&mut self) -> Result<Stmt, String> {
+        match self.consume(TokenType::LeftParen) {
+            Some(_) => {},
+            None => { return Err(self.generate_error("Expect '(' after 'while'.")); }
+        }
+
+        let condition = self.expression()?;
+
+        match self.consume(TokenType::RightParen) {
+            Some(_) => {},
+            None => { return Err(self.generate_error("Expect ')' after condition.")); }
+        }
+
+        let body = self.statement()?;
+
+        Ok(Stmt::While { condition, body: Box::new(body) })
+    }
+
+    fn for_statement(&mut self) -> Result<Stmt, String> {
+        match self.consume(TokenType::LeftParen) {
+            Some(_) => {},
+            None => { return Err(self.generate_error("Expect '(' after 'for'.")); }
+        }
+
+        let mut initializer: Option<Stmt> = None;
+        if self.match_tokens(&[TokenType::Semicolon]) {
+            // Do nothing, initializer is already None
+        } else if self.match_tokens(&[TokenType::Var]) {
+            initializer = Some(self.var_declaration()?);
+        } else {
+            initializer = Some(self.expression_statement()?);
+        }
+
+        let mut condition: Option<Expr> = None;
+        if !self.check(TokenType::Semicolon) {
+            condition = Some(self.expression()?);
+        }
+
+        match self.consume(TokenType::Semicolon) {
+            Some(_) => {},
+            None => { return Err(self.generate_error("Expect ';' after loop condition.")); }
+        }
+
+        let mut increment: Option<Expr> = None;
+        if !self.check(TokenType::RightParen) {
+            increment = Some(self.expression()?);
+        }
+
+        match self.consume(TokenType::RightParen) {
+            Some(_) => {},
+            None => { return Err(self.generate_error("Expect ')' after for clauses.")); }
+        }
+
+        let mut body = self.statement()?;
+
+        if increment.is_some() {
+            body = Stmt::Block { statements: vec![body, Stmt::Expression { expression: increment.unwrap() }] }
+        }
+
+        if condition.is_none() {
+            condition = Some(Expr::Literal { value: Literal::Bool(true) });
+        }
+        body = Stmt::While { condition: condition.unwrap(), body: Box::new(body) };
+
+        if initializer.is_some() {
+            body = Stmt::Block { statements: vec![initializer.unwrap(), body] };
+        }
+
+        Ok(body)
     }
 
     fn if_statement(&mut self) -> Result<Stmt, String> {

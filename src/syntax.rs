@@ -113,10 +113,8 @@ pub enum Stmt {
         initializer: Option<Expr>,
     },
 
-    /*
     While {
         condition: Expr,
         body: Box<Stmt>,
     },
-     */
 }
