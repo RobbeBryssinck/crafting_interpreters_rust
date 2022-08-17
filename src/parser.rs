@@ -9,6 +9,7 @@ pub fn parse_tokens(tokens: Vec<Token>) -> Result<Vec<Stmt>, ()> {
 pub struct Parser {
     pub tokens: Vec<Token>,
     current: usize,
+    loop_count: usize,
 }
 
 impl Parser {
@@ -16,6 +17,7 @@ impl Parser {
         Self {
             tokens,
             current: 0,
+            loop_count: 0,
         }
     }
 
@@ -78,6 +80,8 @@ impl Parser {
             self.while_statement()
         } else if self.match_tokens(&[TokenType::For]) {
             self.for_statement()
+        } else if self.match_tokens(&[TokenType::Break]) {
+            self.break_statement()
         } else if self.match_tokens(&[TokenType::If]) {
             self.if_statement()
         } else if self.match_tokens(&[TokenType::LeftBrace]) {
@@ -117,7 +121,9 @@ impl Parser {
             None => { return Err(self.generate_error("Expect ')' after condition.")); }
         }
 
+        self.loop_count += 1;
         let body = self.statement()?;
+        self.loop_count -= 1;
 
         Ok(Stmt::While { condition, body: Box::new(body) })
     }
@@ -157,7 +163,9 @@ impl Parser {
             None => { return Err(self.generate_error("Expect ')' after for clauses.")); }
         }
 
+        self.loop_count += 1;
         let mut body = self.statement()?;
+        self.loop_count -= 1;
 
         if increment.is_some() {
             body = Stmt::Block { statements: vec![body, Stmt::Expression { expression: increment.unwrap() }] }
@@ -173,6 +181,17 @@ impl Parser {
         }
 
         Ok(body)
+    }
+
+    fn break_statement(&mut self) -> Result<Stmt, String> {
+        if !self.is_in_loop() {
+            return Err(self.generate_error("'break' statement must be in a loop block."));
+        }
+
+        match self.consume(TokenType::Semicolon) {
+            Some(_token) => Ok(Stmt::Break {}),
+            None => Err(self.generate_error("Expect ';' after 'break'."))
+        }
     }
 
     fn if_statement(&mut self) -> Result<Stmt, String> {
@@ -434,6 +453,10 @@ impl Parser {
 
     fn is_at_end(&self) -> bool {
         self.peek().token_type == TokenType::EOF
+    }
+    
+    fn is_in_loop(&self) -> bool {
+        self.loop_count != 0
     }
 
     fn peek(&self) -> &Token {

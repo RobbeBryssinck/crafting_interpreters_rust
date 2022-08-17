@@ -96,6 +96,7 @@ impl Interpreter {
                 if is_truthy(&self.evaluate(condition)?) {
                     self.execute(then_branch)
                 } else if else_branch.is_some() {
+                    // TODO: why?
                     match else_branch {
                         Some(statement) => self.execute(statement),
                         None => Err("This can literally never hit.".to_string())
@@ -106,10 +107,23 @@ impl Interpreter {
             },
             Stmt::While { condition, body } => {
                 while is_truthy(&self.evaluate(condition)?) {
-                    self.execute(body)?;
+                    match self.execute(body) {
+                        Ok(_) => {},
+                        Err(e) => {
+                            if e == "break".to_string() {
+                                return Ok(());
+                            } else {
+                                return Err(e);
+                            }
+                        }
+                    }
                 }
 
                 Ok(())
+            },
+            Stmt::Break {  } => {
+                // TODO: this is super ghetto
+                Err("break".to_string())
             }
         }
     }

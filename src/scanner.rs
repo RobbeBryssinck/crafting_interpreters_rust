@@ -25,7 +25,7 @@ pub enum TokenType {
 
     // Keywords.
     And, Class, Else, False, Fun, For, If, Nil, Or,
-    Print, Return, Super, This, True, Var, While,
+    Print, Return, Super, This, True, Var, While, Break,
 
     EOF
 }
@@ -83,6 +83,7 @@ impl Scanner {
                 (String::from("true"), TokenType::True),
                 (String::from("var"), TokenType::Var),
                 (String::from("while"), TokenType::While),
+                (String::from("break"), TokenType::Break),
             ])
         }
     }
