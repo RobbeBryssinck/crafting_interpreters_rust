@@ -7,7 +7,7 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Debug executable 'crafting_interpreters_rust'",
+			"name": "REPL",
 			"cargo": {
 				"args": [
 					"build",
@@ -25,7 +25,25 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Debug unit tests in executable 'crafting_interpreters_rust'",
+			"name": "test.lox",
+			"cargo": {
+				"args": [
+					"build",
+					"--bin=crafting_interpreters_rust",
+					"--package=crafting_interpreters_rust"
+				],
+				"filter": {
+					"name": "crafting_interpreters_rust",
+					"kind": "bin"
+				}
+			},
+			"args": ["./lox_files/test.lox"],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Tests",
 			"cargo": {
 				"args": [
 					"test",
