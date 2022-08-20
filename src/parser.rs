@@ -484,37 +484,37 @@ mod tests {
                 token_type: TokenType::Var,
                 lexeme: String::from("var"),
                 literal: None,
-                line: 0,
+                line: 1,
             },
             Token {
                 token_type: TokenType::Identifier,
                 lexeme: String::from("a"),
                 literal: Some(Literal::Identifier("a".to_string())),
-                line: 0,
+                line: 1,
             },
             Token {
                 token_type: TokenType::Equal,
                 lexeme: String::from("="),
                 literal: None,
-                line: 0,
+                line: 1,
             },
             Token {
                 token_type: TokenType::Number,
                 lexeme: String::from("5"),
                 literal: Some(Literal::Number(5.0)),
-                line: 0,
+                line: 1,
             },
             Token {
                 token_type: TokenType::Semicolon,
                 lexeme: String::from(";"),
                 literal: None,
-                line: 0,
+                line: 1,
             },
             Token {
                 token_type: TokenType::EOF,
                 lexeme: String::from(";"),
                 literal: None,
-                line: 0,
+                line: 1,
             },
         ];
 

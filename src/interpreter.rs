@@ -17,17 +17,19 @@ impl Interpreter {
         }
     }
 
-    pub fn interpret(&mut self, statements: &Vec<Stmt>) {
+    pub fn interpret(&mut self, statements: &Vec<Stmt>) -> Result<(), ()> {
         for statement in statements {
             match self.execute(&statement) {
                 Ok(()) => {},
                 Err(e) => {
                     println!("Failed to interpret statement.");
                     println!("{}", e);
-                    break;
+                    return Err(());
                 }
             }
         }
+
+        Ok(())
     }
 
     fn execute(&mut self, stmt: &Stmt) -> Result<(), String> {
