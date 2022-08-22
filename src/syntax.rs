@@ -13,13 +13,13 @@ pub enum Expr {
 		right: Box<Expr>,
 	},
 
-    /*
 	Call {
 		callee: Box<Expr>,
 		paren: Token,
 		arguments: Vec<Expr>,
 	},
 
+    /*
     Get {
         object: Box<Expr>,
         name: Token,

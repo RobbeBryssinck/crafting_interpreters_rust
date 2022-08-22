@@ -298,6 +298,20 @@ impl Interpreter {
                     _ => { return Err(self.generate_error(operator.line, "unknown token found while parsing binary expression.")); }
                 }
             },
+            Expr::Call { 
+                callee, 
+                paren, 
+                arguments 
+            } => {
+                let callee_result = self.evaluate(callee)?;
+
+                let mut arguments_value: Vec<Value> = Vec::new();
+                for argument in arguments {
+                    arguments_value.push(self.evaluate(argument)?);
+                }
+
+                Err("TODO: impl".to_string())
+            }
         }
     }
 
