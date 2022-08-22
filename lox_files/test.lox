@@ -20,3 +20,11 @@ while (a == 0) {
     print a;
     a = a + 1;
 }
+
+// Unary test
+print "Unary test";
+var b = false;
+// TODO: this doesn't work
+//print !b;
+var c = !b;
+print c;
