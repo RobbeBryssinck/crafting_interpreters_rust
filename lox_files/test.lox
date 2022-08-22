@@ -1,6 +1,22 @@
+// 'for' test
+print "'for' test";
+for (var i = 0; i < 4; i = i + 1) {
+    print i;
+}
+
+// 'break' test
+print "'break' test";
 for (var i = 0; i < 4; i = i + 1) {
     print i;
     if (i == 2) {
-        //break;
+        break;
     }
+}
+
+// 'while' test
+print "'while' test";
+var a = 0;
+while (a == 0) {
+    print a;
+    a = a + 1;
 }
